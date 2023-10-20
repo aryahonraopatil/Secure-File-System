@@ -1,24 +1,53 @@
-# A robust secure file-sharing system 
+# A Robust Secure P2P File-Sharing System
 
-The file sharing system is described in detail below:
+A comprehensive overview of the secure peer-to-peer (P2P) file-sharing system.
 
-● This is a P2P file system. 
-● Users can create, delete, read, write, restore files.
-● A client should always see the latest version of a file, or at least that a
-client should never see an older version of a file after it sees a newer one.
-● Users should be able to set permissions on files and directories, which
-also requires that your file system be able to name users.
-● The system should be able to deal with concurrent write and read.
-● File names (and directory names) should be treated as confidential. The
-data stored in each peer node should be encrypted.
-● The communication between Peer to Peer should be encrypted.
-● Users should not be able to modify files or directories without being
-detected unless they are authorized to do so.
-● A malicious file server should not be able to create or delete files or
-directories without being detected.
-● Incorporate a log into your file system to track each operation on yourserver.
-Using your knowledge from the first project, define features that will be used
-to detect attacks to your system. Generate logs with unauthorized
-access/modifications and logs with authorized access/modifications. Build your
-detector.
-● Define the vulnerability of your detector.
+## Core Features:
+
+- **P2P Architecture**: 
+  - The system fundamentally operates on a Peer-to-Peer architecture, ensuring decentralized data transfer and storage.
+
+- **File Operations**: 
+  - Users have the ability to:
+    * Create files
+    * Delete files
+    * Read files
+    * Write to files
+    * Restore files
+
+- **Version Control**: 
+  - Clients are always presented with the latest version of a file. They should never see an older version once they've accessed a newer one.
+
+- **User Permissions and Naming**: 
+  - Users can set specific permissions on files and directories.
+  - For effective permissions, the system is capable of uniquely naming users.
+
+- **Concurrency**: 
+  - The system effectively handles concurrent read and write operations.
+
+- **Data Confidentiality and Encryption**: 
+  - File and directory names are treated with confidentiality.
+  - Data stored on each peer node is encrypted.
+  - Peer-to-Peer communications are encrypted for additional security.
+
+- **Integrity and Authorization**: 
+  - Unauthorized file or directory modifications are detected.
+  - Only authorized users can make modifications.
+
+- **Malicious Activity Prevention**: 
+  - Malicious servers are prevented from creating or deleting files/directories without detection.
+
+- **Logging**: 
+  - The system incorporates logs to track each operation.
+  - Attack detection features are built based on these logs. 
+  - Logs differentiate between unauthorized and authorized access or modifications.
+
+## Security and Detection:
+
+- **Attack Detection**: 
+  - Features are in place to detect potential attacks on the system.
+  - Unauthorized access or modifications are logged and detected.
+
+- **Vulnerability Assessment**: 
+  - Regular assessments are conducted to define and understand potential vulnerabilities in the attack detection system.
+
