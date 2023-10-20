@@ -11,11 +11,11 @@ The system will function within a P2P network framework where participants can s
 ## 3. System Components
 
 ### 3.1 User Management
+Handles user-based interactions and cryptographic operations:
 
-Facilitates user-based interactions:
-
-- **Registration**: Enables unique account creation.
-- **Login**: Validates and authenticates existing users.
+- **Registration**: Enables account creation and initiates Diffie-Hellman key pair generation.
+- **Login**: Validates and authenticates users.
+- **Key Exchange**: Allows users to securely share public keys and compute a shared secret for encrypted communication.
 
 ### 3.2 File Management
 
@@ -43,11 +43,24 @@ Monitors, records, and reports all user actions for security and auditing.
 #### 4.1.1 Registration
 
 - Gather `username`, `password`.
-- Use secure password hashing (e.g., bcrypt) before storage.
+- Hash the password using a secure method (e.g., bcrypt) and store in the database.
+- Generate a Diffie-Hellman key pair (public_key, private_key) for the user.
+- Store the public_key in the database (the private_key remains confidential to the user).
 
 #### 4.1.2 Login
 
-- Authenticate by comparing entered and stored hashed passwords.
+- Authenticate by comparing the entered password with the stored hashed password.
+
+#### 4.1.3 Initiate Key Exchange
+
+- Send the user's public_key to a specified peer.
+
+#### 4.1.4 Receive Key Exchange
+
+- Receive a public_key from a requesting peer.
+- Use the stored private_key and the received public_key to compute a shared_secret.
+- Store this shared_secret securely for encrypted communication with the specific peer.
+
 
 ### 4.2 File Management
 
@@ -85,6 +98,8 @@ Tkinter-based user interface:
 - **Logs Window**: Present real-time system logs.
 
 ## 6. Security Considerations
+
+- **Key Exchange**: Employ the Diffie-Hellman protocol to securely exchange keys and derive a shared secret for encrypted peer-to-peer communications. The shared secret, combined with a symmetric encryption algorithm like AES, ensures secure data transmission between peers.
 
 - **Communication**: Secure peer interactions via TLS.
 - **Data at Rest**: Ensure files are encrypted when stored.
@@ -165,11 +180,12 @@ The P2P Secure File Sharing System aims to be a vanguard solution for modern dec
 
 ### A. Libraries and Technologies
 
-- Python 3.x
-- Tkinter (UI)
-- Cryptography (encryption)
-- Socket programming (network communication)
+- Flask (web framework)
+- Flask-Login (user session management)
+- Cryptography (encryption and key management)
+- SQLite (database)
 - Bcrypt (password hashing)
+- Diffie-Hellman library (for key exchange and deriving shared secrets)
 
 ### B. Risks & Mitigations
 
