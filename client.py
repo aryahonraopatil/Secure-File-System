@@ -1,26 +1,12 @@
+# client.py
 import socket
 
-# Define the server host and port
-HOST = '127.0.0.1'
-PORT = 12345
+HOST = '127.0.0.1'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
 
-def start_client():
-    # Create a socket object
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    s.sendall(b'Hello, world')
+    data = s.recv(1024)
 
-    # Connect to the server
-    client_socket.connect((HOST, PORT))
-
-    # Receive the welcome message from the server
-    welcome_message = client_socket.recv(1024)
-    print(welcome_message.decode('utf-8'))
-
-    # Send data to the server
-    message = "Hello, server!"
-    client_socket.sendall(message.encode('utf-8'))
-
-    # Close the client socket
-    client_socket.close()
-
-if __name__ == "__main__":
-    start_client()
+print(f'Received {data!r}')
