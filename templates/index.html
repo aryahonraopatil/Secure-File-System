@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Communication</title>
+</head>
+<body>
+    <h1>WebSocket Communication</h1>
+    <div id="communication-container">
+        <!-- Communication messages will be displayed here -->
+    </div>
+    <button id="start-server">Start Server</button>
+    <button id="start-client">Start Client</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket');
+        });
+
+        socket.on('communication_message', (message) => {
+            const communicationContainer = document.getElementById('communication-container');
+            const messageElement = document.createElement('div');
+            messageElement.innerText = message;
+            communicationContainer.appendChild(messageElement);
+        });
+
+        document.getElementById('start-server').addEventListener('click', () => {
+            fetch('/start_server');
+        });
+
+        document.getElementById('start-client').addEventListener('click', () => {
+            fetch('/start_client');
+        });
+    </script>
+</body>
+</html>
