@@ -1,0 +1,27 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Central Server - Peer List</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Peer List</h1>
+    <ul id="peer-list"></ul>
+
+    <script>
+        const socket = io();
+        const peerList = document.getElementById('peer-list');
+
+        socket.on('update_peers', peers => {
+            peerList.innerHTML = '';
+            for (const [key, peer] of Object.entries(peers)) {
+                const li = document.createElement('li');
+                li.textContent = peer.name;
+                peerList.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
