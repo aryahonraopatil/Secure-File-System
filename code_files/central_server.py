@@ -81,3 +81,9 @@ def initUI(self):
         
         def log_message(self, message):
             self.log_area.append(message)
+            
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    ex = CentralServerGUI()
+    ex.show()
+    sys.exit(app.exec_())
