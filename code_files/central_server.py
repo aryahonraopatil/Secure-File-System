@@ -70,3 +70,11 @@ def initUI(self):
         self.setGeometry(100, 100, 600, 400)
 
         layout = QVBoxLayout()
+        
+        self.log_area = QTextEdit()
+        self.log_area.setReadOnly(True)
+        layout.addWidget(self.log_area)
+
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
