@@ -78,3 +78,6 @@ def initUI(self):
         central_widget = QWidget()
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
+        
+        def log_message(self, message):
+            self.log_area.append(message)
