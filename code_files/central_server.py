@@ -55,3 +55,12 @@ class ServerThread(QThread):
 
     def run(self):
         self.server.run(self.log_signal)
+        
+class CentralServerGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.server = CentralServer()
+        self.server_thread = ServerThread(self.server)
+        self.server_thread.log_signal.connect(self.log_message)
+        self.server_thread.start()
