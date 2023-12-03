@@ -64,3 +64,9 @@ class CentralServerGUI(QMainWindow):
         self.server_thread = ServerThread(self.server)
         self.server_thread.log_signal.connect(self.log_message)
         self.server_thread.start()
+        
+def initUI(self):
+        self.setWindowTitle("Central Server")
+        self.setGeometry(100, 100, 600, 400)
+
+        layout = QVBoxLayout()
