@@ -4,3 +4,44 @@ import socket
 import threading
 import json
 import sys
+
+class CentralServer:
+    def __init__(self, host="localhost", port=12345):
+        self.active_peers = {}
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(5)
+
+    def handle_peer(self, client_socket, address, log_callback):
+        buffer = ""
+        while True:
+            try:
+                data = client_socket.recv(1024).decode()
+                if not data:
+                    break
+
+                buffer += data
+                while "\n" in buffer:
+                    message, buffer = buffer.split("\n", 1)
+                    data = json.loads(message)
+
+                    if data["type"] == "register":
+                        self.active_peers[str(address)] = data["peer_info"]
+                        log_callback.emit(f"Peer registered: {data['peer_info']}")
+                    elif data["type"] == "request_list":
+                        response_data = {str(key): value for key, value in self.active_peers.items()}
+                        response = json.dumps(response_data) + "\n"
+                        client_socket.send(response.encode())
+
+            except Exception as e:
+                log_callback.emit(f"Error with peer {address}: {e}")
+                break
+
+        self.active_peers.pop(str(address), None)
+        log_callback.emit(f"Peer is still connected: {address}")
+        client_socket.close()
+
+    def run(self, log_callback):
+        while True:
+            client_socket, address = self.server_socket.accept()
+            threading.Thread(target=self.handle_peer, args=(client_socket, address, log_callback)).start()
