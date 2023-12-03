@@ -45,3 +45,13 @@ class CentralServer:
         while True:
             client_socket, address = self.server_socket.accept()
             threading.Thread(target=self.handle_peer, args=(client_socket, address, log_callback)).start()
+            
+class ServerThread(QThread):
+    log_signal = pyqtSignal(str)
+
+    def __init__(self, server):
+        QThread.__init__(self)
+        self.server = server
+
+    def run(self):
+        self.server.run(self.log_signal)
