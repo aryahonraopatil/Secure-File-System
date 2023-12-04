@@ -13,29 +13,50 @@ faulthandler.enable()
 
 class Peer:
     def __init__(self, name, server_host="localhost", server_port=12345, start_port=5001, end_port=5100):
+        # Set the log file name
         self.log_file = f"{name}_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        
+        # Log the start of the peer session
         self.log_message("Peer session started")
+        
+        # Set the name of the PeerSession
         self.name = name
         
+        # Set the server address
         self.server_address = (server_host, server_port)
+        
+        # Find a free port
         self.peer_port = self.find_free_port(start_port, end_port)
+        
+        # Raise an exception if no free ports are available
         if self.peer_port is None:
             raise Exception("No free ports available in the specified range.")
+        
+        # Create a socket for the peer
         self.peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.peer_socket.bind(("localhost", self.peer_port))
         self.peer_socket.listen(5)
+        
+        # Initialize the active peers dictionary
         self.active_peers = {}
+        
+        # Set the incoming file save path to None
         self.incoming_file_save_path = None
+        
+        # Create a socket for server communication
         self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        # Connect to the server
         self.server_communication_socket.connect(self.server_address)
+        
+        # Register with the server
         self.register_with_server()
-        # threading.Thread(target=self.maintain_connection_with_server, daemon=True).start()
+        
+        # Start a thread for accepting incoming connections
         threading.Thread(target=self.accept_incoming_connections, daemon=True).start()
-        # threading.Thread(target=self.handle_incoming_connection, daemon=True).start()
         
-        
+        # Set the file transfer request callback to None
         self.file_transfer_request_callback = None
-
     def log_message(self, message):
         """Log a message to the peer's log file."""
         with open(self.log_file, 'a') as file:
