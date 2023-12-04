@@ -15,7 +15,7 @@ Each peer is capable of performing server-like (e.g., hosting files) and client-
 Graphical User Interface (GUI)
 It is developed using PyQt5, the GUI provides a user-friendly platform for users to engage with the P2P network, manage files, send messages, and view active peers and system logs.
 
-**Implementation **
+**Implementation**
 
 The central server acts as a registry for active peers. On startup, it listens on a specified port for incoming connections. When a peer connects, it registers the peer's details (IP, port, name) and shares the list of currently active peers with it. For handling connections, it uses Python's socket and threading libraries to handle multiple simultaneous peer registrations.
 
@@ -57,10 +57,19 @@ Enhanced Troubleshooting: The logs provide valuable insights for troubleshooting
 Simultaneous Operations: The system is designed to handle concurrent read and write operations, ensuring that multiple peers can interact with the system without significant delays or conflicts.
 
 **Future Enhancements**
+
 We have effectively demonstrated the core principles of a P2P network, but future enhancements could include:
 Advanced File Versioning: To ensure users always access the latest version of a file.
 Encryption: For secure data storage and communication.
 User Authentication and Permissions: To provide more granular control over file access and modifications.
+
+This P2P file system implements decentralized file sharing and communication. It has the advantages of P2P networks, such as scalability, direct peer interactions, and reduced reliance on centralized components. 
+
+**References:**
+
+[1] https://www.geeksforgeeks.org/p2p-peer-to-peer-file-sharing/
+[2] https://www.tutorialspoint.com/securing-communication-channels-with-diffie-hellman-algorithm-an-implementation-guide
+[3] https://cseweb.ucsd.edu/classes/sp16/cse291-e/applications/ln/lecture13.html
 
 ## Core Features:
 
@@ -91,20 +100,8 @@ User Authentication and Permissions: To provide more granular control over file 
   - Unauthorized file or directory modifications are detected.
   - Only authorized users can make modifications.
 
-- **Malicious Activity Prevention**: 
-  - Malicious servers are prevented from creating or deleting files/directories without detection.
-
 - **Logging**: 
   - The system incorporates logs to track each operation.
   - Attack detection features are built based on these logs. 
   - Logs differentiate between unauthorized and authorized access or modifications.
-
-## Security and Detection:
-
-- **Attack Detection**: 
-  - Features are in place to detect potential attacks on the system.
-  - Unauthorized access or modifications are logged and detected.
-
-- **Vulnerability Assessment**: 
-  - Regular assessments are conducted to define and understand potential vulnerabilities in the attack detection system.
 
