@@ -167,7 +167,26 @@ class PeerGUI(QMainWindow):
             QMessageBox.warning(self, "Warning", "Select a peer first")
 
 
-    
+    def handle_file_transfer_request_gui(self, file_name, file_size, client_socket):
+        response = QMessageBox.question(self, "File Transfer Request",
+                                        f"Accept file '{file_name}' ({file_size} bytes)?",
+                                        QMessageBox.Yes | QMessageBox.No)
+
+        if response == QMessageBox.Yes:
+            save_path, _ = QFileDialog.getSaveFileName(self, "Save File As", file_name, "All Files (*.*)")
+            if save_path:
+                # Only set up file receiving; the sending of the acceptance message is handled in peer.py
+                self.peer.file_save_callback(save_path)
+            else:
+                print('File transfer rejected by user. No save location specified.')
+        else:
+            print('File transfer rejected by user.')
+
+        # Close the client_socket in either case, as the response is handled in peer.py
+        print('****Socket is being closed at GUI file handling.****')
+        client_socket.close()
+
+   
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
