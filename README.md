@@ -68,8 +68,11 @@ This P2P file system implements decentralized file sharing and communication. It
 **References:**
 
 [1] https://www.geeksforgeeks.org/p2p-peer-to-peer-file-sharing/
+
 [2] https://www.tutorialspoint.com/securing-communication-channels-with-diffie-hellman-algorithm-an-implementation-guide
+
 [3] https://cseweb.ucsd.edu/classes/sp16/cse291-e/applications/ln/lecture13.html
+
 
 ## Core Features:
 
