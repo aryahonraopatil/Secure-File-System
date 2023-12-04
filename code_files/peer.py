@@ -205,13 +205,23 @@ class Peer:
 
     def send_message(self, target_peer, message):
         try:
+            # Create a socket and connect to the target peer
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect(target_peer)
+                
+                # Prepare the message data
                 message_data = f"MESSAGE:{message}\n"
+                
+                # Send the message data
                 s.send(message_data.encode())
+                
+                # Log the sent message
                 self.log_message(str(f"MESSAGE:{message}\n"))
+                
+                # Print a success message
                 print(f"Message sent: {message}")
         except Exception as e:
+            # Print an error message and log the error
             print(f"Error sending message: {e}")
             self.log_message(str(f"Error sending message: {e}"))
 
