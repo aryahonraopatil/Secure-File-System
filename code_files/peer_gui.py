@@ -151,6 +151,22 @@ class PeerGUI(QMainWindow):
             if info['name'] != self.peer.name:
                 self.peers_list.addItem(f"{info['name']} ({info['host']}:{info['port']})")
 
+    def select_file_to_send(self):
+        selected_item = self.peers_list.currentItem()
+        if selected_item:
+            file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "All Files (*.*)")
+            if file_path:
+                # Correctly parse the host and port from the selected item's text
+                selected_text = selected_item.text()
+                name, addr = selected_text.split(' (')
+                host, port_str = addr.rstrip(')').split(':')
+                port = int(port_str)
+                target_peer = (host.strip(), port)
+                self.peer.send_file(target_peer, file_path)
+        else:
+            QMessageBox.warning(self, "Warning", "Select a peer first")
+
+
     
 
 if __name__ == "__main__":
