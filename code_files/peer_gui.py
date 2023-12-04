@@ -141,6 +141,10 @@ class PeerGUI(QMainWindow):
  
     
 
+    def refresh_peers(self):
+        self.peer.fetch_active_peers()
+        self.update_peers_list(self.peer.active_peers)
+
     
 
 if __name__ == "__main__":
