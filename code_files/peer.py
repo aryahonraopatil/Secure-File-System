@@ -140,29 +140,79 @@ class Peer:
 
     def set_message_received_callback(self, callback):
         self.message_received_callback = callback
-
-    def handle_incoming_connection(self, client_socket):
         
-        data = client_socket.recv(1024).decode()
-        if data.startswith('CONNECTION_CHECK'):
-            print(f"Connection check received from {client_socket.getpeername()}")
-            self.message_received_callback(f"Connection check received from {client_socket.getpeername()}")
-            # time.sleep(1)  # Delay to ensure message is sent before socket is closed
-            client_socket.send("CONNECTION_OK".encode())
-            self.log_message(f"Connection check received from {client_socket.getpeername()}")
+    def handle_incoming_connection(self, client_socket):
+        try:
+            data = client_socket.recv(1024).decode()
+            if data.startswith('CONNECTION_CHECK'):
+                print(f"Connection check received from {client_socket.getpeername()}")
+                self.message_received_callback(f"Connection check received from {client_socket.getpeername()}")
+                # time.sleep(1)  # Delay to ensure message is sent before socket is closed
+                client_socket.send("CONNECTION_OK".encode())
+                self.log_message(f"Connection check received from {client_socket.getpeername()}")
 
-        elif data.startswith('CONNECTION_OK'):
-            print(f"CONNECTION_OK received from {client_socket.getpeername()}")
-            self.message_received_callback(f"CONNECTION_OK received from {client_socket.getpeername()}")
-            self.log_message(f"CONNECTION_OK received from {client_socket.getpeername()}")
+            elif data.startswith('CONNECTION_OK'):
+                print(f"CONNECTION_OK received from {client_socket.getpeername()}")
+                self.message_received_callback(f"CONNECTION_OK received from {client_socket.getpeername()}")
+                self.log_message(f"CONNECTION_OK received from {client_socket.getpeername()}")
 
-        elif data.startswith('MESSAGE:'):
-            # Correctly extract message using partition
-            _, _, message = data.partition('MESSAGE:')
-            print(f"Received message: {message}")
-            self.log_message(f'MESSAGE:{message}')
-            if self.message_received_callback:
-                self.message_received_callback(message)
+            elif data.startswith('MESSAGE:'):
+                # Correctly extract message using partition
+                _, _, message = data.partition('MESSAGE:')
+                print(f"Received message: {message}")
+                self.log_message(f'MESSAGE:{message}')
+                if self.message_received_callback:
+                    self.message_received_callback(message)
+
+
+            elif data.startswith('FILE_TRANSFER_REQUEST'):
+                _, file_name, file_size = data.split(':')
+                file_size = int(file_size)
+                self.log_message(f'FILE_TRANSFER_REQUEST: {_},{file_name},{file_size}')
+                # Use the file_save_callback to get the save path
+                if self.file_save_callback:
+                    save_path = self.incoming_file_save_path
+                    if save_path is not None:
+                        listening_port = self.setup_file_receiving(file_size, save_path)
+                    else:
+                        listening_port = self.setup_file_receiving(file_size, os.path.join(os.getcwd(), file_name))
+                    acceptance_message = f"TRANSFER_ACCEPTED:{listening_port}"
+                    self.log_message(f"TRANSFER_ACCEPTED:{file_size, os.path.join(os.getcwd(), file_name)}")
+                    client_socket.send(acceptance_message.encode())
+                        
+                    
+                else:
+                    client_socket.send("TRANSFER_REJECTED".encode())
+                    self.log_message(f'TRANSFER_REJECTED"')
+
+
+                # Call the file transfer request callback if set
+                if self.file_transfer_request_callback:
+                    self.file_transfer_request_callback(file_name, file_size, client_socket)
+
+            
+            else:
+                # Handle case when it's neither a message nor a connection check
+                file_name, file_size = data.split(':')
+                file_size = int(file_size)
+                with open(file_name, 'wb') as file:
+                    remaining = file_size
+                    while remaining:
+                        chunk_size = 4096 if remaining >= 4096 else remaining
+                        chunk = client_socket.recv(chunk_size)
+                        if not chunk: 
+                            break
+                        file.write(chunk)
+                        remaining -= len(chunk)
+                print(f"Received file: {file_name}")
+                self.log_message(f"Received file: {file_name}")
+
+        except Exception as e:
+            print(f"Error in handle_incoming_connection: {e}")
+            self.log_message(f"Error in handle_incoming_connection: {e}")
+        finally:
+            print("****Socket Closed: peer.py handling incomming connections!****")
+            client_socket.close()
 
     def receive_file(self, file_socket, file_size, save_path):
         conn, _ = file_socket.accept()
