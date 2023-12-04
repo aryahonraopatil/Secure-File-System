@@ -29,9 +29,18 @@ class Peer:
         self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_communication_socket.connect(self.server_address)
         self.register_with_server()
+        # threading.Thread(target=self.maintain_connection_with_server, daemon=True).start()
+        threading.Thread(target=self.accept_incoming_connections, daemon=True).start()
+        # threading.Thread(target=self.handle_incoming_connection, daemon=True).start()
         
         
         self.file_transfer_request_callback = None
+
+    def log_message(self, message):
+        """Log a message to the peer's log file."""
+        with open(self.log_file, 'a') as file:
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            file.write(f"{timestamp} - {message}\n")
 
     def find_free_port(self, start_port, end_port):
         for port in range(start_port, end_port):
@@ -43,12 +52,6 @@ class Peer:
             except OSError:
                 continue
         return None
-    
-    def log_message(self, message):
-        """Log a message to the peer's log file."""
-        with open(self.log_file, 'a') as file:
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            file.write(f"{timestamp} - {message}\n")
 
     def register_with_server(self):
         registration_message = json.dumps({
@@ -109,6 +112,18 @@ class Peer:
             print(f"Error: {e}")
             self.log_message(f"Error: {e}")
 
+    def file_save_callback(self, save_path):
+        """
+        Callback function to be called from the GUI when the user selects a save path for an incoming file.
+        """
+        self.incoming_file_save_path = save_path
+
+    def accept_incoming_connections(self):
+        while True:
+            client_socket, _ = self.peer_socket.accept()
+            threading.Thread(target=self.handle_incoming_connection, args=(client_socket,)).start()
+
+    
     def check_connection(self, target_peer):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -120,11 +135,9 @@ class Peer:
         except Exception as e:
             print(f"Error checking connection: {e}")
             self.log_message(str(f"Error checking connection: {e}"))
-            
-    def accept_incoming_connections(self):
-        while True:
-            client_socket, _ = self.peer_socket.accept()
-            threading.Thread(target=self.handle_incoming_connection, args=(client_socket,)).start()
+
+    def set_file_transfer_request_callback(self, callback):
+        self.file_transfer_request_callback = callback
 
     def send_message(self, target_peer, message):
         try:
@@ -140,7 +153,9 @@ class Peer:
 
     def set_message_received_callback(self, callback):
         self.message_received_callback = callback
-        
+            
+
+
     def handle_incoming_connection(self, client_socket):
         try:
             data = client_socket.recv(1024).decode()
@@ -214,6 +229,18 @@ class Peer:
             print("****Socket Closed: peer.py handling incomming connections!****")
             client_socket.close()
 
+    def setup_file_receiving(self, file_size, save_path):
+        # Set up a listening socket for the file transfer
+        file_receiving_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        file_receiving_socket.bind(("localhost", 0))  # 0 allows the OS to choose an available port
+        file_receiving_socket.listen(1)
+        listening_port = file_receiving_socket.getsockname()[1]
+
+        # Start a new thread to handle the file reception
+        threading.Thread(target=self.receive_file, args=(file_receiving_socket, file_size, save_path), daemon=True).start()
+
+        return listening_port
+
     def receive_file(self, file_socket, file_size, save_path):
         conn, _ = file_socket.accept()
         with conn:
@@ -244,6 +271,8 @@ class Peer:
                 self.log_message(f"Error receiving file: {e}")
 
         file_socket.close()
+
+        
 
     def send_file_transfer_request(self, target_peer, file_name, file_size):
         try:
@@ -294,15 +323,9 @@ class Peer:
                 print(f"Error sending file: {e}")
                 self.log_message(f"Error sending file: {e}")
 
-    def file_save_callback(self, save_path):
-        """
-        Callback function to be called from the GUI when the user selects a save path for an incoming file.
-        """
-        self.incoming_file_save_path = save_path
-
-     def set_file_transfer_request_callback(self, callback):
-        self.file_transfer_request_callback = callback
-
+    def close_connections(self):
+        self.peer_socket.close()
+        self.server_communication_socket.close()
 
 if __name__ == "__main__":
     try:
