@@ -86,22 +86,26 @@ class Peer:
                 break
 
     def fetch_active_peers(self):
-        self.log_message("Requesting active peers list from server...")
-        print("Requesting active peers list from server...")
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(self.server_address)
-            request_message = json.dumps({"type": "request_list"}) + "\n"
-            s.send(request_message.encode())
-            self.log_message(str(request_message))
-            response = s.recv(1024).decode()
-            if response:
-                self.active_peers = json.loads(response)
-                print("Received active peers list:", self.active_peers)
-                self.log_message(f"Received active peers list: {self.active_peers}")
-            else:
-                print("No response or empty response received from server")
-                self.log_message("No response or empty response received from server")
-
+        try:
+            self.log_message("Requesting active peers list from server...")
+            print("Requesting active peers list from server...")
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect(self.server_address)
+                request_message = json.dumps({"type": "request_list"}) + "\n"
+                s.send(request_message.encode())
+                self.log_message(str(request_message))
+                response = s.recv(1024).decode()
+                if response:
+                    self.active_peers = json.loads(response)
+                    print("Received active peers list:", self.active_peers)
+                    self.log_message(f"Received active peers list: {self.active_peers}")
+                else:
+                    print("No response or empty response received from server")
+                    self.log_message("No response or empty response received from server")
+        
+        except Exception as e:
+            print(f"Error: {e}")
+            self.log_message(f"Error: {e}")
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
