@@ -373,12 +373,19 @@ class Peer:
             return None
 
     def send_file(self, target_peer, file_path):
+        # Get the file name and size
         file_name = os.path.basename(file_path)
         file_size = os.path.getsize(file_path)
+
+        # Send file transfer request and get the transfer port
         transfer_port = self.send_file_transfer_request(target_peer, file_name, file_size)
+
+        # If transfer port is available, send the file
         if transfer_port:
             try:
                 file_transfer_address = (target_peer[0], transfer_port)
+
+                # Connect to the target peer
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     s.connect(file_transfer_address)
 
@@ -395,9 +402,12 @@ class Peer:
                             if not bytes_read:
                                 break
                             s.sendall(bytes_read)
+
+                    # Print and log success message
                     print(f"File sent: {file_name}")
                     self.log_message(f"File sent: {file_name}")
             except Exception as e:
+                # Print and log error message
                 print(f"Error sending file: {e}")
                 self.log_message(f"Error sending file: {e}")
 
