@@ -64,20 +64,26 @@ class Peer:
 
     def maintain_connection_with_server(self):
         while True:
-            heartbeat_message = json.dumps({"type": "heartbeat"}) + "\n"
-            self.server_communication_socket.send(heartbeat_message.encode())
-            time.sleep(10)
-            self.log_message("Connection lost. Attempting to reconnect...")
-            print("Connection lost. Attempting to reconnect...")
-            time.sleep(5)
-            self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.server_communication_socket.connect(self.server_address)
-            self.register_with_server()
-            self.log_message(f"Failed to reconnect: {e}")
-            print(f"Failed to reconnect: {e}")
-            self.log_message(f"Error maintaining connection with server: {e}")
-            print(f"Error maintaining connection with server: {e}")
-
+            try:
+                heartbeat_message = json.dumps({"type": "heartbeat"}) + "\n"
+                self.server_communication_socket.send(heartbeat_message.encode())
+                time.sleep(10)
+            except BrokenPipeError:
+                self.log_message("Connection lost. Attempting to reconnect...")
+                print("Connection lost. Attempting to reconnect...")
+                time.sleep(5)
+                try:
+                    self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.server_communication_socket.connect(self.server_address)
+                    self.register_with_server()
+                except Exception as e:
+                    self.log_message(f"Failed to reconnect: {e}")
+                    print(f"Failed to reconnect: {e}")
+                    break
+            except Exception as e:
+                self.log_message(f"Error maintaining connection with server: {e}")
+                print(f"Error maintaining connection with server: {e}")
+                break
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
