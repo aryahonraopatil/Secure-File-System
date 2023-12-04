@@ -8,7 +8,19 @@ import faulthandler
 
 faulthandler.enable()
 
+class PeerThread(QThread):
+    update_peers_signal = pyqtSignal(dict)
 
+    def __init__(self, peer, refresh_interval=10):
+        super().__init__()
+        self.peer = peer
+        self.refresh_interval = refresh_interval  # Time in seconds between each refresh
+
+    def run(self):
+        while True:
+            self.peer.fetch_active_peers()
+            self.update_peers_signal.emit(self.peer.active_peers)
+            time.sleep(self.refresh_interval)  # Pause the thread
 
 
 class PeerGUI(QMainWindow):
