@@ -13,6 +13,8 @@ faulthandler.enable()
 
 class Peer:
     def __init__(self, name, server_host="localhost", server_port=12345, start_port=5001, end_port=5100):
+        self.log_file = f"{name}_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        self.log_message("Peer session started")
         self.name = name
         
         self.server_address = (server_host, server_port)
@@ -23,6 +25,7 @@ class Peer:
         self.peer_socket.bind(("localhost", self.peer_port))
         self.peer_socket.listen(5)
         self.active_peers = {}
+        self.incoming_file_save_path = None
         self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_communication_socket.connect(self.server_address)
         self.register_with_server()
@@ -40,6 +43,12 @@ class Peer:
             except OSError:
                 continue
         return None
+    
+    def log_message(self, message):
+        """Log a message to the peer's log file."""
+        with open(self.log_file, 'a') as file:
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            file.write(f"{timestamp} - {message}\n")
 
 if __name__ == "__main__":
     try:
