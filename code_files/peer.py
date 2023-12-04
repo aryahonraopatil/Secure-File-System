@@ -121,6 +121,11 @@ class Peer:
             print(f"Error checking connection: {e}")
             self.log_message(str(f"Error checking connection: {e}"))
             
+    def accept_incoming_connections(self):
+        while True:
+            client_socket, _ = self.peer_socket.accept()
+            threading.Thread(target=self.handle_incoming_connection, args=(client_socket,)).start()
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
