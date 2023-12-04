@@ -1,0 +1,13 @@
+# Standard Libraries (do not need to be installed via pip)
+# socket
+# threading
+# json
+# os
+# time
+# re
+# datetime
+# sys
+
+# External Libraries
+PyQt5
+cryptography
