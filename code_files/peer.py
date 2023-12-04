@@ -164,30 +164,54 @@ class Peer:
             if self.message_received_callback:
                 self.message_received_callback(message)
 
+    def send_file_transfer_request(self, target_peer, file_name, file_size):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect(target_peer)
+                request_message = f"FILE_TRANSFER_REQUEST:{file_name}:{file_size}\n"
+                self.log_message(f"FILE_TRANSFER_REQUEST:{file_name}:{file_size}\n")
+                s.send(request_message.encode())
+                # Receive the response, which should include the port for the file transfer
+                response = s.recv(1024).decode()
+                if response.startswith("TRANSFER_ACCEPTED"):
+                    self.log_message("TRANSFER_ACCEPTED")
+                    _, transfer_port = response.split(':')
+                    return int(transfer_port)
+                else:
+                    return None
+        except Exception as e:
+            print(f"Error sending file transfer request: {e}")
+            self.log_message(f"Error sending file transfer request: {e}")
+            return None
+
     def send_file(self, target_peer, file_path):
         file_name = os.path.basename(file_path)
         file_size = os.path.getsize(file_path)
         transfer_port = self.send_file_transfer_request(target_peer, file_name, file_size)
         if transfer_port:
-            file_transfer_address = (target_peer[0], transfer_port)
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.connect(file_transfer_address)
+            try:
+                file_transfer_address = (target_peer[0], transfer_port)
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.connect(file_transfer_address)
 
-                # Construct and send the metadata
-                metadata = f"{file_name}:{file_size}"
-                metadata_encoded = metadata.encode()
-                s.sendall(len(metadata_encoded).to_bytes(4, 'big'))
-                s.sendall(metadata_encoded)
+                    # Construct and send the metadata
+                    metadata = f"{file_name}:{file_size}"
+                    metadata_encoded = metadata.encode()
+                    s.sendall(len(metadata_encoded).to_bytes(4, 'big'))
+                    s.sendall(metadata_encoded)
 
-                # Send the file
-                with open(file_path, 'rb') as f:
-                    while True:
-                        bytes_read = f.read(4096)
-                        if not bytes_read:
-                            break
-                        s.sendall(bytes_read)
-                print(f"File sent: {file_name}")
-                self.log_message(f"File sent: {file_name}")
+                    # Send the file
+                    with open(file_path, 'rb') as f:
+                        while True:
+                            bytes_read = f.read(4096)
+                            if not bytes_read:
+                                break
+                            s.sendall(bytes_read)
+                    print(f"File sent: {file_name}")
+                    self.log_message(f"File sent: {file_name}")
+            except Exception as e:
+                print(f"Error sending file: {e}")
+                self.log_message(f"Error sending file: {e}")
 
 if __name__ == "__main__":
     try:
