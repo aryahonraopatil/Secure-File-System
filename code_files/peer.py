@@ -50,6 +50,18 @@ class Peer:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             file.write(f"{timestamp} - {message}\n")
 
+    def register_with_server(self):
+        registration_message = json.dumps({
+            "type": "register",
+            "peer_info": {
+                "host": "localhost",
+                "port": self.peer_port,
+                "name": self.name
+            }
+        }) + "\n"
+        self.server_communication_socket.send(registration_message.encode())
+        self.log_message(str(registration_message))
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
