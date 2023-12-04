@@ -115,6 +115,10 @@ class PeerGUI(QMainWindow):
     def on_message_received(self, message):
         self.message_received_signal.emit(message)
 
+    def display_message(self, message):
+        self.message_display.append(f"{message}")
+
+
     
 
 if __name__ == "__main__":
