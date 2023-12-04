@@ -167,26 +167,31 @@ class Peer:
     def receive_file(self, file_socket, file_size, save_path):
         conn, _ = file_socket.accept()
         with conn:
-            # Read the length of the metadata
-            metadata_length = int.from_bytes(conn.recv(4), 'big')
+            try:
+                # Read the length of the metadata
+                metadata_length = int.from_bytes(conn.recv(4), 'big')
 
-            # Read the metadata
-            metadata = conn.recv(metadata_length).decode()
-            file_name, size_str = metadata.split(':')
-            expected_size = int(size_str)
+                # Read the metadata
+                metadata = conn.recv(metadata_length).decode()
+                file_name, size_str = metadata.split(':')
+                expected_size = int(size_str)
 
-            # Read the file content
-            with open(save_path, 'wb') as f:
-                received = 0
-                while received < expected_size:
-                    chunk = conn.recv(min(4096, expected_size - received))
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    received += len(chunk)
+                # Read the file content
+                with open(save_path, 'wb') as f:
+                    received = 0
+                    while received < expected_size:
+                        chunk = conn.recv(min(4096, expected_size - received))
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        received += len(chunk)
 
-            print(f"File received and saved to: {save_path}")
-            self.log_message(f"File received and saved to: {save_path}")
+                print(f"File received and saved to: {save_path}")
+                self.log_message(f"File received and saved to: {save_path}")
+
+            except Exception as e:
+                print(f"Error receiving file: {e}")
+                self.log_message(f"Error receiving file: {e}")
 
         file_socket.close()
 
