@@ -138,6 +138,34 @@ class Peer:
             print(f"Error sending message: {e}")
             self.log_message(str(f"Error sending message: {e}"))
 
+    def set_message_received_callback(self, callback):
+        self.message_received_callback = callback
+            
+
+
+    def handle_incoming_connection(self, client_socket):
+        
+        data = client_socket.recv(1024).decode()
+        if data.startswith('CONNECTION_CHECK'):
+            print(f"Connection check received from {client_socket.getpeername()}")
+            self.message_received_callback(f"Connection check received from {client_socket.getpeername()}")
+            # time.sleep(1)  # Delay to ensure message is sent before socket is closed
+            client_socket.send("CONNECTION_OK".encode())
+            self.log_message(f"Connection check received from {client_socket.getpeername()}")
+
+        elif data.startswith('CONNECTION_OK'):
+            print(f"CONNECTION_OK received from {client_socket.getpeername()}")
+            self.message_received_callback(f"CONNECTION_OK received from {client_socket.getpeername()}")
+            self.log_message(f"CONNECTION_OK received from {client_socket.getpeername()}")
+
+        elif data.startswith('MESSAGE:'):
+            # Correctly extract message using partition
+            _, _, message = data.partition('MESSAGE:')
+            print(f"Received message: {message}")
+            self.log_message(f'MESSAGE:{message}')
+            if self.message_received_callback:
+                self.message_received_callback(message)
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
