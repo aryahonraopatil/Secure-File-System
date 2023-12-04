@@ -43,7 +43,41 @@ class PeerGUI(QMainWindow):
         self.peer_thread.update_peers_signal.connect(self.update_peers_list)
         self.peer_thread.start()
 
-   
+    def initUI(self):
+        self.setGeometry(100, 100, 600, 400)
+        layout = QVBoxLayout()
+
+        self.peers_list = QListWidget()
+        layout.addWidget(self.peers_list)
+
+        self.refresh_button = QPushButton("Refresh Peers")
+        self.refresh_button.clicked.connect(self.refresh_peers)
+        layout.addWidget(self.refresh_button)
+
+        self.test_connection_button = QPushButton("Test Connection")
+        self.test_connection_button.clicked.connect(self.test_connection)
+        layout.addWidget(self.test_connection_button)
+
+        self.message_edit = QLineEdit()
+        layout.addWidget(self.message_edit)
+
+        self.send_message_button = QPushButton("Send Message")
+        self.send_message_button.clicked.connect(self.send_message)
+        layout.addWidget(self.send_message_button)
+
+        self.message_display = QTextEdit()
+        self.message_display.setReadOnly(True)
+        layout.addWidget(self.message_display)
+
+        self.send_file_button = QPushButton("Send File")
+        self.send_file_button.clicked.connect(self.select_file_to_send)
+        layout.addWidget(self.send_file_button)
+
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
