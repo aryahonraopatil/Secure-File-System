@@ -57,6 +57,7 @@ class Peer:
         
         # Set the file transfer request callback to None
         self.file_transfer_request_callback = None
+    
     def log_message(self, message):
         """Log a message to the peer's log file."""
         with open(self.log_file, 'a') as file:
@@ -66,12 +67,21 @@ class Peer:
     def find_free_port(self, start_port, end_port):
         for port in range(start_port, end_port):
             try:
+                # Create a temporary socket
                 temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                
+                # Bind the socket to localhost and the current port number
                 temp_socket.bind(("localhost", port))
+                
+                # Close the socket
                 temp_socket.close()
+                
+                # Return the port number if the bind was successful
                 return port
             except OSError:
                 continue
+        
+        # Return None if no free port is found
         return None
 
     def register_with_server(self):
