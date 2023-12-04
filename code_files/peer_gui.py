@@ -198,12 +198,22 @@ class PeerGUI(QMainWindow):
 
 
     def handle_file_transfer_request_gui(self, file_name, file_size, client_socket):
-        response = QMessageBox.question(self, "File Transfer Request",
-                                        f"Accept file '{file_name}' ({file_size} bytes)?",
-                                        QMessageBox.Yes | QMessageBox.No)
+        # Ask the user if they want to accept the file transfer request
+        response = QMessageBox.question(
+            self,
+            "File Transfer Request",
+            f"Accept file '{file_name}' ({file_size} bytes)?",
+            QMessageBox.Yes | QMessageBox.No
+        )
 
         if response == QMessageBox.Yes:
-            save_path, _ = QFileDialog.getSaveFileName(self, "Save File As", file_name, "All Files (*.*)")
+            # Ask the user to specify a save location
+            save_path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Save File As",
+                file_name,
+                "All Files (*.*)"
+            )
             if save_path:
                 # Only set up file receiving; the sending of the acceptance message is handled in peer.py
                 self.peer.file_save_callback(save_path)
