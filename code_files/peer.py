@@ -104,24 +104,43 @@ class Peer:
     def maintain_connection_with_server(self):
         while True:
             try:
+                # Send heartbeat message to the server
                 heartbeat_message = json.dumps({"type": "heartbeat"}) + "\n"
                 self.server_communication_socket.send(heartbeat_message.encode())
+                
+                # Wait for 10 seconds before sending the next heartbeat message
                 time.sleep(10)
+            
             except BrokenPipeError:
+                # Connection lost, attempt to reconnect
                 self.log_message("Connection lost. Attempting to reconnect...")
                 print("Connection lost. Attempting to reconnect...")
+                
+                # Wait for 5 seconds before attempting to reconnect
                 time.sleep(5)
+                
                 try:
+                    # Create a new socket and connect to the server
                     self.server_communication_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.server_communication_socket.connect(self.server_address)
+                    
+                    # Register with the server after reconnecting
                     self.register_with_server()
+                
                 except Exception as e:
+                    # Failed to reconnect
                     self.log_message(f"Failed to reconnect: {e}")
                     print(f"Failed to reconnect: {e}")
+                    
+                    # Break out of the loop and stop maintaining the connection
                     break
+            
             except Exception as e:
+                # Error maintaining connection with server
                 self.log_message(f"Error maintaining connection with server: {e}")
                 print(f"Error maintaining connection with server: {e}")
+                
+                # Break out of the loop and stop maintaining the connection
                 break
 
     def fetch_active_peers(self):
