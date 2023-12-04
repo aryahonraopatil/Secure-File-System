@@ -99,6 +99,18 @@ class PeerGUI(QMainWindow):
 
     
 
+    def test_connection(self):
+        selected_item = self.peers_list.currentItem()
+        if selected_item:
+            selected_text = selected_item.text()
+            name, addr = selected_text.split(' (')
+            host, port_str = addr.rstrip(')').split(':')
+            port = int(port_str)
+            target_peer = (host.strip(), port)
+            self.peer.check_connection(target_peer)
+        else:
+            QMessageBox.warning(self, "Warning", "Select a peer first")
+
     
 
 if __name__ == "__main__":
