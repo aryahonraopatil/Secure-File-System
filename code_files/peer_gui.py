@@ -186,7 +186,9 @@ class PeerGUI(QMainWindow):
         print('****Socket is being closed at GUI file handling.****')
         client_socket.close()
 
-   
+    def closeEvent(self, event):
+        self.peer.close_connections()
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
