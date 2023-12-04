@@ -6,6 +6,15 @@ from peer import Peer
 
 import faulthandler
 
+faulthandler.enable()
+
+
+
+class PeerGUI(QMainWindow):
+    file_transfer_request_signal = pyqtSignal(str, int, object)
+    message_received_signal = pyqtSignal(str)
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
