@@ -145,6 +145,12 @@ class PeerGUI(QMainWindow):
         self.peer.fetch_active_peers()
         self.update_peers_list(self.peer.active_peers)
 
+    def update_peers_list(self, active_peers):
+        self.peers_list.clear()
+        for address, info in active_peers.items():
+            if info['name'] != self.peer.name:
+                self.peers_list.addItem(f"{info['name']} ({info['host']}:{info['port']})")
+
     
 
 if __name__ == "__main__":
