@@ -227,39 +227,39 @@ class Peer:
 
     def set_message_received_callback(self, callback):
         self.message_received_callback = callback
-            
-
 
     def handle_incoming_connection(self, client_socket):
         try:
             data = client_socket.recv(1024).decode()
+
             if data.startswith('CONNECTION_CHECK'):
+                # Connection check received
                 print(f"Connection check received from {client_socket.getpeername()}")
                 self.message_received_callback(f"Connection check received from {client_socket.getpeername()}")
-                # time.sleep(1)  # Delay to ensure message is sent before socket is closed
                 client_socket.send("CONNECTION_OK".encode())
                 self.log_message(f"Connection check received from {client_socket.getpeername()}")
 
             elif data.startswith('CONNECTION_OK'):
+                # Connection OK received
                 print(f"CONNECTION_OK received from {client_socket.getpeername()}")
                 self.message_received_callback(f"CONNECTION_OK received from {client_socket.getpeername()}")
                 self.log_message(f"CONNECTION_OK received from {client_socket.getpeername()}")
 
             elif data.startswith('MESSAGE:'):
-                # Correctly extract message using partition
+                # Message received
                 _, _, message = data.partition('MESSAGE:')
                 print(f"Received message: {message}")
                 self.log_message(f'MESSAGE:{message}')
                 if self.message_received_callback:
                     self.message_received_callback(message)
 
-
             elif data.startswith('FILE_TRANSFER_REQUEST'):
                 _, file_name, file_size = data.split(':')
                 file_size = int(file_size)
                 self.log_message(f'FILE_TRANSFER_REQUEST: {_},{file_name},{file_size}')
-                # Use the file_save_callback to get the save path
+                
                 if self.file_save_callback:
+                    # Use the file_save_callback to get the save path
                     save_path = self.incoming_file_save_path
                     if save_path is not None:
                         listening_port = self.setup_file_receiving(file_size, save_path)
@@ -268,18 +268,14 @@ class Peer:
                     acceptance_message = f"TRANSFER_ACCEPTED:{listening_port}"
                     self.log_message(f"TRANSFER_ACCEPTED:{file_size, os.path.join(os.getcwd(), file_name)}")
                     client_socket.send(acceptance_message.encode())
-                        
-                    
                 else:
                     client_socket.send("TRANSFER_REJECTED".encode())
                     self.log_message(f'TRANSFER_REJECTED"')
 
-
-                # Call the file transfer request callback if set
                 if self.file_transfer_request_callback:
+                    # Call the file transfer request callback if set
                     self.file_transfer_request_callback(file_name, file_size, client_socket)
 
-            
             else:
                 # Handle case when it's neither a message nor a connection check
                 file_name, file_size = data.split(':')
@@ -299,6 +295,7 @@ class Peer:
         except Exception as e:
             print(f"Error in handle_incoming_connection: {e}")
             self.log_message(f"Error in handle_incoming_connection: {e}")
+
         finally:
             print("****Socket Closed: peer.py handling incomming connections!****")
             client_socket.close()
