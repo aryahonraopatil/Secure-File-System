@@ -145,15 +145,24 @@ class Peer:
 
     def fetch_active_peers(self):
         try:
+            # Log and print message to indicate that the peers list is being requested
             self.log_message("Requesting active peers list from server...")
             print("Requesting active peers list from server...")
+
+            # Create a socket and connect to the server address
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect(self.server_address)
+
+                # Create request message and send it to the server
                 request_message = json.dumps({"type": "request_list"}) + "\n"
                 s.send(request_message.encode())
                 self.log_message(str(request_message))
+
+                # Receive response from the server
                 response = s.recv(1024).decode()
+
                 if response:
+                    # Parse the response as JSON and update the active_peers attribute
                     self.active_peers = json.loads(response)
                     print("Received active peers list:", self.active_peers)
                     self.log_message(f"Received active peers list: {self.active_peers}")
