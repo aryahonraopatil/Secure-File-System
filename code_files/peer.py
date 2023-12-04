@@ -30,6 +30,17 @@ class Peer:
         
         self.file_transfer_request_callback = None
 
+    def find_free_port(self, start_port, end_port):
+        for port in range(start_port, end_port):
+            try:
+                temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                temp_socket.bind(("localhost", port))
+                temp_socket.close()
+                return port
+            except OSError:
+                continue
+        return None
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
