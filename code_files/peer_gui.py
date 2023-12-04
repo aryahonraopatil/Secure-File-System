@@ -78,20 +78,31 @@ class PeerGUI(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def handle_file_transfer_request_gui(self, file_name, file_size, client_socket):
-        response = QMessageBox.question(self, "File Transfer Request",
-                                        f"Accept file '{file_name}' ({file_size} bytes)?",
-                                        QMessageBox.Yes | QMessageBox.No)
+        # Prompt the user to accept or reject the file transfer request
+        response = QMessageBox.question(
+            self, "File Transfer Request",
+            f"Accept file '{file_name}' ({file_size} bytes)?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+
         if response == QMessageBox.Yes:
-            save_path, _ = QFileDialog.getSaveFileName(self, "Save File As", file_name, "All Files (*.*)")
+            # Prompt the user to choose a save path for the file
+            save_path, _ = QFileDialog.getSaveFileName(
+                self, "Save File As", file_name, "All Files (*.*)"
+            )
+
             if save_path:
                 try:
+                    # Send an acceptance message to the client
                     client_socket.send("TRANSFER_ACCEPTED".encode())
                 except Exception as e:
                     print(f"Error sending acceptance: {e}")
-                # The client_socket will be closed later, not here
-                self.peer.setup_file_receiving(file_size, save_path)  # Assuming this sets up the server to receive the file
+
+                # Set up the server to receive the file
+                self.peer.setup_file_receiving(file_size, save_path)
         else:
             try:
+                # Send a rejection message to the client
                 client_socket.send("TRANSFER_REJECTED".encode())
             finally:
                 print('****Socket is being closed at gui file handling.****')
