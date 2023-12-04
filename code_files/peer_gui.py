@@ -119,6 +119,28 @@ class PeerGUI(QMainWindow):
         self.message_display.append(f"{message}")
 
 
+    def send_message(self):
+        selected_item = self.peers_list.currentItem()
+        if selected_item:
+            message = self.message_edit.text()
+            
+            if message:
+                selected_text = selected_item.text()
+                name, addr = selected_text.split(' (')
+                host, port_str = addr.rstrip(')').split(':')
+                port = int(port_str)
+                target_peer = (host.strip(), port)
+                message = f'{peer.name} to {name}: {message}'
+                self.peer.send_message(target_peer, message)
+                self.display_message(f"{message}")
+                self.message_edit.clear()
+            else:
+                QMessageBox.warning(self, "Warning", "Enter a message")
+        else:
+            QMessageBox.warning(self, "Warning", "Select a peer first")
+ 
+    
+
     
 
 if __name__ == "__main__":
