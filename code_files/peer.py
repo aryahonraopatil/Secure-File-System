@@ -85,6 +85,7 @@ class Peer:
         return None
 
     def register_with_server(self):
+        # Create the registration message
         registration_message = json.dumps({
             "type": "register",
             "peer_info": {
@@ -93,7 +94,11 @@ class Peer:
                 "name": self.name
             }
         }) + "\n"
+
+        # Send the registration message to the server
         self.server_communication_socket.send(registration_message.encode())
+
+        # Log the registration message
         self.log_message(str(registration_message))
 
     def maintain_connection_with_server(self):
