@@ -110,13 +110,16 @@ class Peer:
             self.log_message(f"Error: {e}")
 
     def check_connection(self, target_peer):
-        
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(target_peer)
-            check_message = "CONNECTION_CHECK\n"
-            s.send(check_message.encode())
-            print("Connection check message sent.")
-            self.log_message(str(f'Connection check message sent to {target_peer}'))
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect(target_peer)
+                check_message = "CONNECTION_CHECK\n"
+                s.send(check_message.encode())
+                print("Connection check message sent.")
+                self.log_message(str(f'Connection check message sent to {target_peer}'))
+        except Exception as e:
+            print(f"Error checking connection: {e}")
+            self.log_message(str(f"Error checking connection: {e}"))
             
 if __name__ == "__main__":
     try:
