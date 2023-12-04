@@ -111,6 +111,10 @@ class PeerGUI(QMainWindow):
         else:
             QMessageBox.warning(self, "Warning", "Select a peer first")
 
+    @pyqtSlot(str)
+    def on_message_received(self, message):
+        self.message_received_signal.emit(message)
+
     
 
 if __name__ == "__main__":
