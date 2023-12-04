@@ -244,6 +244,16 @@ class Peer:
                 print(f"Error sending file: {e}")
                 self.log_message(f"Error sending file: {e}")
 
+    def file_save_callback(self, save_path):
+        """
+        Callback function to be called from the GUI when the user selects a save path for an incoming file.
+        """
+        self.incoming_file_save_path = save_path
+
+     def set_file_transfer_request_callback(self, callback):
+        self.file_transfer_request_callback = callback
+
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
