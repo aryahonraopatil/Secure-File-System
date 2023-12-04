@@ -126,6 +126,18 @@ class Peer:
             client_socket, _ = self.peer_socket.accept()
             threading.Thread(target=self.handle_incoming_connection, args=(client_socket,)).start()
 
+    def send_message(self, target_peer, message):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect(target_peer)
+                message_data = f"MESSAGE:{message}\n"
+                s.send(message_data.encode())
+                self.log_message(str(f"MESSAGE:{message}\n"))
+                print(f"Message sent: {message}")
+        except Exception as e:
+            print(f"Error sending message: {e}")
+            self.log_message(str(f"Error sending message: {e}"))
+
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
