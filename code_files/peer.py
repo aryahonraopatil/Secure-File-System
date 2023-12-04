@@ -102,10 +102,13 @@ class Peer:
                 else:
                     print("No response or empty response received from server")
                     self.log_message("No response or empty response received from server")
-        
+        except json.JSONDecodeError:
+            print("Failed to decode JSON from server response")
+            self.log_message("Failed to decode JSON from server response")
         except Exception as e:
             print(f"Error: {e}")
             self.log_message(f"Error: {e}")
+            
 if __name__ == "__main__":
     try:
         name = input("Enter peer name: ")
