@@ -2,10 +2,10 @@
 
 A comprehensive overview of the secure peer-to-peer (P2P) file-sharing system.
 
-## Core Features:
+**Introduction**
+Our P2P file system represents a decentralized network where each participant (peer) serves both as a client and a server. This architecture has direct sharing and communication between peers, which ensures efficiency and scalability of the system. The system is built with Python and utilizes PyQt5 for the graphical user interface.
 
-- **P2P Architecture**: 
-  - The system fundamentally operates on a Peer-to-Peer architecture, ensuring decentralized data transfer and storage.
+## Core Features:
 
 - **File Operations**: 
   - Users have the ability to:
