@@ -38,6 +38,30 @@ The GUI will launch, displaying available options like active peers, file transf
 
 Repeat the process for launching a peer instance for each additional peer you want in the network and ensure each peer has a unique name for identification.
 
+**Key Functionalities and Advantages**
+
+1. End-to-End File Sharing
+Direct File Transfers: Peers can send and receive files directly with each other, bypassing the need for a centralized server. This approach reduces bottlenecks and potential points of failure.
+GUI-Based Interaction: Users can easily choose files to send and specify destinations for incoming files through an intuitive interface.
+Dynamic Participation: New peers can join the network and immediately start sharing files, enhancing the system's flexibility and responsiveness to changing network conditions.
+2. Real-Time Messaging System
+Instant Communication: The system supports real-time messaging, allowing peers to communicate instantly. This feature is crucial for coordinating file transfers and collaborative activities.
+Seamless Integration: Messaging is seamlessly integrated into the peer interface, providing a holistic user experience that combines file sharing and communication.
+3. Efficient Peer Discovery
+Central Server for Initial Connection: A central server facilitates the initial discovery of peers. Once connected, peers communicate directly.
+Scalable Network Topology: The system easily scales as the number of peers increases, maintaining efficiency in peer discovery and overall network performance.
+4. Robust Logging Mechanism
+Detailed Activity Logs: Each peer session is logged in detail, including actions taken, files transferred, messages sent, and any errors encountered.
+Enhanced Troubleshooting: The logs provide valuable insights for troubleshooting and understanding peer behavior, aiding in system maintenance and improvement.
+5. Concurrent Read/Write Operations
+Simultaneous Operations: The system is designed to handle concurrent read and write operations, ensuring that multiple peers can interact with the system without significant delays or conflicts.
+
+**Future Enhancements**
+We have effectively demonstrated the core principles of a P2P network, but future enhancements could include:
+Advanced File Versioning: To ensure users always access the latest version of a file.
+Encryption: For secure data storage and communication.
+User Authentication and Permissions: To provide more granular control over file access and modifications.
+
 ## Core Features:
 
 - **File Operations**: 
