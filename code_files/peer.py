@@ -140,8 +140,6 @@ class Peer:
 
     def set_message_received_callback(self, callback):
         self.message_received_callback = callback
-            
-
 
     def handle_incoming_connection(self, client_socket):
         
@@ -165,6 +163,31 @@ class Peer:
             self.log_message(f'MESSAGE:{message}')
             if self.message_received_callback:
                 self.message_received_callback(message)
+
+    def send_file(self, target_peer, file_path):
+        file_name = os.path.basename(file_path)
+        file_size = os.path.getsize(file_path)
+        transfer_port = self.send_file_transfer_request(target_peer, file_name, file_size)
+        if transfer_port:
+            file_transfer_address = (target_peer[0], transfer_port)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect(file_transfer_address)
+
+                # Construct and send the metadata
+                metadata = f"{file_name}:{file_size}"
+                metadata_encoded = metadata.encode()
+                s.sendall(len(metadata_encoded).to_bytes(4, 'big'))
+                s.sendall(metadata_encoded)
+
+                # Send the file
+                with open(file_path, 'rb') as f:
+                    while True:
+                        bytes_read = f.read(4096)
+                        if not bytes_read:
+                            break
+                        s.sendall(bytes_read)
+                print(f"File sent: {file_name}")
+                self.log_message(f"File sent: {file_name}")
 
 if __name__ == "__main__":
     try:
