@@ -313,7 +313,9 @@ class Peer:
         return listening_port
 
     def receive_file(self, file_socket, file_size, save_path):
+        # Accept the connection
         conn, _ = file_socket.accept()
+
         with conn:
             try:
                 # Read the length of the metadata
@@ -324,7 +326,7 @@ class Peer:
                 file_name, size_str = metadata.split(':')
                 expected_size = int(size_str)
 
-                # Read the file content
+                # Read the file content and save it
                 with open(save_path, 'wb') as f:
                     received = 0
                     while received < expected_size:
@@ -334,13 +336,18 @@ class Peer:
                         f.write(chunk)
                         received += len(chunk)
 
-                print(f"File received and saved to: {save_path}")
-                self.log_message(f"File received and saved to: {save_path}")
+                # Print and log the success message
+                message = f"File received and saved to: {save_path}"
+                print(message)
+                self.log_message(message)
 
             except Exception as e:
-                print(f"Error receiving file: {e}")
-                self.log_message(f"Error receiving file: {e}")
+                # Print and log the error message
+                error_message = f"Error receiving file: {e}"
+                print(error_message)
+                self.log_message(error_message)
 
+        # Close the file socket
         file_socket.close()
 
         
