@@ -111,15 +111,29 @@ class PeerGUI(QMainWindow):
     
 
     def test_connection(self):
+        # Get the selected item from the peers_list
         selected_item = self.peers_list.currentItem()
+
         if selected_item:
+            # Get the text of the selected item
             selected_text = selected_item.text()
+
+            # Split the text into name and address
             name, addr = selected_text.split(' (')
+
+            # Split the address into host and port
             host, port_str = addr.rstrip(')').split(':')
+
+            # Convert the port to an integer
             port = int(port_str)
+
+            # Create a target peer tuple with the host and port
             target_peer = (host.strip(), port)
+
+            # Check the connection to the target peer
             self.peer.check_connection(target_peer)
         else:
+            # Display a warning message if no peer is selected
             QMessageBox.warning(self, "Warning", "Select a peer first")
 
     @pyqtSlot(str)
