@@ -49,18 +49,6 @@ current_directories = {username: BASE_DIR for username in users}
 
 
 # Configure logging
-class StringHandler(logging.Handler):
-    def __init__(self):
-        super().__init__()
-        self.log_stream = io.StringIO()
-
-    def emit(self, record):
-        # Write the log message to a StringIO object
-        self.log_stream.write(self.format(record) + '\n')
-
-    def get_log(self):
-        # Retrieve the entire log content
-        return self.log_stream.getvalue()
 
 # Create a logger
 logger = logging.getLogger()
@@ -79,14 +67,12 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
-# Create a custom string handler
-string_handler = StringHandler()
-string_handler.setFormatter(formatter)
+
 
 # Add the handlers to the logger
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
-logger.addHandler(string_handler)
+
 
 
 
@@ -102,16 +88,24 @@ def log_malicious_activity(activity):
     with open('malicious.log', 'a') as log_file:
         log_file.write(activity + '\n')
 
-def m_detect(data):
+def m_detect():
     """
-    Detects malicious activity in the provided log data.
+    Detects malicious activity in the latest log data.
+    """
+    try:
+        # Read the last line from the log file
+        with open('file_system.log', 'rb') as file:
+            file.seek(-2, os.SEEK_END)
+            while file.read(1) != b'\n':
+                file.seek(-2, os.SEEK_CUR)
+            last_line = file.readline().decode()
 
-    Parameters:
-    data (str): The log data to be analyzed.
-    """
-    if detect.predict_malicious_activity(data):
-        log_malicious_activity(data)
-        print('Malicious')
+        # Analyze the last line for malicious activity
+        if detect.predict_malicious_activity(last_line):
+            log_malicious_activity(last_line)
+            print('******Malicious-Activity******')
+    except Exception as e:
+        print(f"Error in m_detect: {e}")
 
 
 
@@ -260,8 +254,9 @@ def client_handler(client_socket):
         
         info_log = f"Received command from {client_socket.getpeername()}: {data}"
         logging.info(info_log)
-        captured_log = string_handler.get_log()
-        m_detect(captured_log)
+        
+        m_detect()
+        
         
 
         command = data.split()
@@ -277,28 +272,32 @@ def client_handler(client_socket):
                     response = "Login successful."
                     info_log = f"Login successful for user {username}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
                 else:
                     failed_login_attempts += 1
                     response = "Invalid username or password."
                     info_log = f"Failed login attempt for user {username}"
                     logging.warning(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    
+                    m_detect()
+                    
                     if failed_login_attempts > 3:  # Example threshold for failed attempts
                         info_log = f"Multiple failed login attempts from {client_socket.getpeername()}"
                         logging.warning(info_log)
-                        captured_log = string_handler.get_log()
-                        m_detect(captured_log)
+                        
+                        
+                        m_detect()
+                        
 
             elif current_user:
                 if command[0] == "list":
                     response = list_files_and_dirs(current_user)
                     info_log = f"List directory command executed by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "mkdir" and has_permission(current_user, command[1], "create"):
                     try:
@@ -306,14 +305,14 @@ def client_handler(client_socket):
                         response = f"Directory '{command[1]}' created."
                         info_log = f"Directory created: {command[1]} by {current_user}"
                         logging.info(info_log)
-                        captured_log = string_handler.get_log()
-                        m_detect(captured_log)
+                        
+                        m_detect()
                     except Exception as e:
                         response = str(e)
                         info_log = f"Error creating directory: {command[1]} by {current_user}, Error: {e}"
                         logging.error(info_log)
-                        captured_log = string_handler.get_log()
-                        m_detect(captured_log)
+                        
+                        m_detect()
 
                 elif command[0] == "create" and has_permission(current_user, command[1], "create"):
                     filename = command[1]
@@ -322,39 +321,39 @@ def client_handler(client_socket):
                     response = f"File '{filename}' created."
                     info_log = f"File created: {filename} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "delete" and has_permission(current_user, command[1], "delete"):
                     delete_file(current_user, command[1])
                     response = f"File '{command[1]}' deleted."
                     info_log = f"File deleted: {command[1]} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "restore" and has_permission(current_user, command[1], "restore"):
                     restore_file(current_user, command[1])
                     response = f"File '{command[1]}' restored."
                     info_log = f"File restored: {command[1]} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "read" and has_permission(current_user, command[1], "read"):
                     read_file(client_socket, current_user, command[1])
                     info_log = f"File read: {command[1]} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "write" and has_permission(current_user, command[1], "write"):
                     write_file(current_user, command[1], command[2], " ".join(command[3:]))
                     response = f"Written to '{command[1]}'."
                     info_log = f"File written to: {command[1]} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "setperm" and has_permission(current_user, command[1], "create"):
                     file_path = command[1]
@@ -362,8 +361,8 @@ def client_handler(client_socket):
                     set_file_permissions(client_socket, current_user, file_path, permissions)
                     info_log =f"Permissions set for {file_path} by {current_user}"
                     logging.info(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
 
                 elif command[0] == "cd" and has_permission(current_user, command[1], "create"):
                     try:
@@ -371,37 +370,39 @@ def client_handler(client_socket):
                         response = f"Now in directory: {current_directories[current_user]}"
                         info_log = f"Changed directory to: {current_directories[current_user]} by {current_user}"
                         logging.info(info_log)
-                        captured_log = string_handler.get_log()
-                        m_detect(captured_log)
+                        
+                        m_detect()
 
                     except Exception as e:
                         response = str(e)
                         info_log = f"Error changing directory: {command[1]} by {current_user}, Error: {e}"
                         logging.error(info_log)
-                        captured_log = string_handler.get_log()
-                        m_detect(captured_log)
+                        
+                        m_detect()
 
                 else:
                     response = "Permission denied or invalid command."
                     info_log = f"Permission denied or invalid command for {current_user}: {data}"
                     logging.warning(info_log)
-                    captured_log = string_handler.get_log()
-                    m_detect(captured_log)
+                    
+                    m_detect()
+                    
 
             else:
                 response = "Please login first."
                 info_log = f"Command attempted without login: {data}"
                 logging.warning(info_log)
-                captured_log = string_handler.get_log()
-                m_detect(captured_log)
+                
+                m_detect()
+                
 
 
         except Exception as e:
             response = f"Error: {str(e)}"
             info_log = f"Unexpected error for {current_user}: {e}"
             logging.error(f"Unexpected error for {current_user}: {e}")
-            captured_log = string_handler.get_log()
-            m_detect(captured_log)
+            
+            m_detect()
         client_socket.send(encrypt_message(response))
 
     client_socket.close()
@@ -414,8 +415,8 @@ def start_server():
     print("Server started. Listening for connections...")
     info_log = f"Server started. Listening for connections at {server_socket}"
     logging.info(info_log)
-    captured_log = string_handler.get_log()
-    m_detect(captured_log)
+    
+    m_detect()
 
     while True:
         client_sock, addr = server_socket.accept()
